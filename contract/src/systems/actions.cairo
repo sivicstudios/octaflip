@@ -44,7 +44,9 @@ pub mod actions {
         pub game_id: u64,
         #[key]
         pub player_id: u8,
+        #[key]
         pub player_address: ContractAddress,
+        pub timestamp: u64,
     }
 
     /// Event emitted when a game starts.
@@ -53,7 +55,9 @@ pub mod actions {
     pub struct GameStarted {
         #[key]
         pub game_id: u64,
+        #[key]
         pub start_time: u64,
+        pub timestamp: u64,
     }
 
     /// Event emitted when a game ends.
@@ -62,8 +66,11 @@ pub mod actions {
     pub struct GameEnded {
         #[key]
         pub game_id: u64,
+        #[key]
         pub end_time: u64,
+        #[key]
         pub winner: ContractAddress,
+        pub timestamp: u64,
     }
 
     /// Event emitted when a player claims a tile.
@@ -72,9 +79,13 @@ pub mod actions {
     pub struct TileClaim {
         #[key]
         pub game_id: u64,
+        #[key]
         pub player: ContractAddress,
+        #[key]
         pub x: u8,
+        #[key]
         pub y: u8,
+        pub timestamp: u64,
     }
 
     #[abi(embed_v0)]
@@ -172,7 +183,12 @@ pub mod actions {
             world.write_model(@new_player);
             world.write_model(@game);
 
-            world.emit_event(@PlayerJoined { game_id, player_address, player_id });
+            world
+                .emit_event(
+                    @PlayerJoined {
+                        game_id, player_address, player_id, timestamp: get_block_timestamp(),
+                    },
+                );
         }
 
         // Open ended question, who should start the game?
@@ -217,7 +233,8 @@ pub mod actions {
 
             world.write_model(@game);
 
-            world.emit_event(@GameStarted { game_id, start_time });
+            world
+                .emit_event(@GameStarted { game_id, start_time, timestamp: get_block_timestamp() });
         }
 
         /// Claims a tile on the game board.
@@ -264,7 +281,10 @@ pub mod actions {
                 game.data = 'ENDED';
                 //game.winner = winner;
                 world.write_model(@game);
-                world.emit_event(@GameEnded { game_id, end_time, winner });
+                world
+                    .emit_event(
+                        @GameEnded { game_id, end_time, winner, timestamp: get_block_timestamp() },
+                    );
                 return;
             }
 
@@ -290,7 +310,8 @@ pub mod actions {
 
             world.write_model(@player_at_position);
             world.write_model(@tile);
-            world.emit_event(@TileClaim { game_id, x, y, player });
+            world
+                .emit_event(@TileClaim { game_id, x, y, player, timestamp: get_block_timestamp() });
         }
 
         /// Determines the winner of a game.

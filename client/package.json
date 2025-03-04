@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4.0.7",
     "@types/uuid": "^10.0.0",
     "bignumber.js": "^9.1.2",
+    "graphql-ws": "^6.0.4",
     "immer": "^10.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

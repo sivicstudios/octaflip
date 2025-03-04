@@ -54,6 +54,8 @@ const connector = new ControllerConnector({
   // },
 });
 
+console.log("xdxxxdcwsc");
+
 // Configure RPC provider
 const provider = jsonRpcProvider({
   rpc: (chain: Chain) => {
@@ -86,8 +88,8 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     <StarknetConfig
       autoConnect
       chains={[mainnet, sepolia]}
-      provider={provider}
-      connectors={[connector]}
+      provider={localProvider}
+      connectors={pa as unknown as Connector[]}
       explorer={starkscan}
     >
       {children}

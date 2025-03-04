@@ -2,13 +2,14 @@ import { useDojoSDK } from "@dojoengine/sdk/react";
 import { getEvents } from "@dojoengine/utils";
 import { useAccount } from "@starknet-react/core";
 import { useEffect, useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import { toast } from "react-toastify";
 import { delay, extractErrorMessageFromJSONRPCError } from "../utils/helpers";
 import { useNavigate } from "react-router";
 import { DELAY_MILLISECONDS } from "../utils/constants";
 import Header from "../components/Header";
 import { QUERY_PLAYERS_IN_GAME } from "../utils/queries";
+import { PLAYER_JOINED_SUBSCRIPTION } from "../utils/subscriptions";
 
 const NewGame = () => {
   const [gameId, setGameId] = useState<string>("");
@@ -29,9 +30,12 @@ const NewGame = () => {
   const playersInGame =
     queryPlayersInGameData?.octaFlipPlayerInGameModels?.edges;
 
-  if (playersInGame?.length > 1) {
-    navigate(`/play/${gameId}`);
-  }
+  // if (playersInGame?.length > 1) {
+  //   navigate(`/play/${gameId}`);
+  // }
+
+  const { data } = useSubscription(PLAYER_JOINED_SUBSCRIPTION);
+  console.log("DATA: ", data);
 
   // Create and join game
   const createNewGame = async () => {
@@ -103,7 +107,7 @@ const NewGame = () => {
     }
   };
 
-  startPollingPlayersInGame(100);
+  startPollingPlayersInGame(500);
 
   useEffect(() => {
     const createAndJoinGame = async () => {

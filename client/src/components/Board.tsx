@@ -89,8 +89,8 @@ const Board = () => {
   playerYellowFlipCount =
     queryFlippedTilesCount1?.octaFlipTileModels?.totalCount;
 
-  startPollingFlippedTilesCount1(100);
-  startPollingFlippedTilesCount2(100);
+  startPollingFlippedTilesCount1(500);
+  startPollingFlippedTilesCount2(500);
 
   async function getGameStartTime(gameId: string) {
     try {
