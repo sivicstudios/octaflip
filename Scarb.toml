@@ -23,6 +23,6 @@ cairo_test = "=2.9.2"
 dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.2.1" }
 
 [tool.dojo.env]
-rpc_url = "https://api.cartridge.gg/x/octaflipdev1/katana"
+# rpc_url = "https://api.cartridge.gg/x/octaflipdev1/katana"
 
 [profile.sepolia]
