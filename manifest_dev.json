@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x470e0096bdc3b84f71b7815a7829fbd05fd3787bf07f97a7d579398e1d67f76",
-      "class_hash": "0x4a59b91c3a8c4eedb7ddb30baf28f15f19a61b6abba3e9279cc202681adec6f",
+      "address": "0x577f68ce06c295b9de97e73792347fb3a918b64639200486059fe44be0e7456",
+      "class_hash": "0x19ef625c814ca7665057f237927486972a0ff39dbabbd6d4906888f03309ebe",
       "abi": [
         {
           "type": "impl",
@@ -1648,25 +1648,25 @@
     },
     {
       "members": [],
-      "class_hash": "0xb4bdac8b75a103db0b3c66f8b4434e64b2211eaa9d006cbb29b6b021ab4fc",
+      "class_hash": "0x6d8f546e296e253e4e4ebad91ec25234a3e514f12e0aeb85b8e142b438dd6ec",
       "tag": "octa_flip-GameEnded",
       "selector": "0x1e0e56909cbb93977738c998383c2cb09c89d2fbab6fea65269877b5e51cad4"
     },
     {
       "members": [],
-      "class_hash": "0x1d5044746a77e0b5ea2b4dc3720d192c45ce874f862abbf912afa91dda25441",
+      "class_hash": "0x6b20b97afc5af82e7771599a817b4064ee962c6ee8d812d091e83e9c189e958",
       "tag": "octa_flip-GameStarted",
       "selector": "0x24e014d3f38f6a57005b967e747d892c9ad5941bfd9abe40c661b1f22a7e6be"
     },
     {
       "members": [],
-      "class_hash": "0x7fd511e87f68519499519377ad54401d063c0c765bf90afd7150903ed5eb4c5",
+      "class_hash": "0x68430d007324fb7d8a97425a2deb27d11c4947994bcfd97f0fe013b57343f1d",
       "tag": "octa_flip-PlayerJoined",
       "selector": "0x666b015cf8dc8ec243e5563f4139da761304c64307c97797d0e3307c2b83924"
     },
     {
       "members": [],
-      "class_hash": "0x73bdabaa6c447f594475f8c3e64a620cadfd5fe0f3a5263a78750fa8ca828f1",
+      "class_hash": "0xbf3377841c539b4274e2165f2aa9b0d1820c8485728647efdad2260fa3bcb1",
       "tag": "octa_flip-TileClaim",
       "selector": "0x79dd84075220c07fa8b25fea8c2f760deee03640bc7724d4fcce6711c291b17"
     }
