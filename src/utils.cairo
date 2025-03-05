@@ -24,3 +24,7 @@ pub fn unmask_session(data: felt252) -> (u64, u64) {
 
     (starts_at, ends_at)
 }
+
+pub fn colors() -> Span<felt252> {
+    array!['GREEN', 'YELLOW'].span()
+}

@@ -2,3 +2,7 @@ pub const GRID_SIZE: u8 = 8;
 pub const PVP: u8 = 2;
 pub const START_BIT_MASK: u256 = 0xFFFFFFFFFFFFFFFF0000000000000000;
 pub const END_BIT_MASK: u256 = 0x0000000000000000FFFFFFFFFFFFFFFF;
+
+pub const WAITING: felt252 = 'WAITING';
+pub const ONGOING: felt252 = 'ONGOING';
+pub const ENDED: felt252 = 'ENDED';
