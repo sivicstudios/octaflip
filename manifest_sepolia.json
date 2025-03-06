@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
-    "address": "0x663a7f797e7d535468398a597dceb80122fa900aae9e64700f3b5048a82bb35",
-    "seed": "octaflipsepolia4",
+    "address": "0x61017a1419eed9689c0dcb7b9d242cb489a4961f3ae884e1d92bfad0288958d",
+    "seed": "octaflipsepolia5",
     "name": "Octa Flip",
     "entrypoints": [
       "uuid",
@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x759ac0b84dba5f591b434e3c07d7a4d8a5183fb6a9c407d10e16b0f4cddca17",
-      "class_hash": "0x19ef625c814ca7665057f237927486972a0ff39dbabbd6d4906888f03309ebe",
+      "address": "0x335c2783b2664c8f38e644d32c797f9703ad417db3e085e83a016b90eaf658",
+      "class_hash": "0x7da2ed5349c85385836b4b980352613d2ad88acf575ed2a17d75dbdb10cce7a",
       "abi": [
         {
           "type": "impl",
@@ -1387,6 +1387,26 @@
             },
             {
               "type": "function",
+              "name": "create_competitive_game",
+              "inputs": [
+                {
+                  "name": "grid_size",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "duration",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::integer::u64"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
               "name": "join_game",
               "inputs": [
                 {
@@ -1399,7 +1419,31 @@
             },
             {
               "type": "function",
+              "name": "join_competitive_game",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
               "name": "start_game",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "start_competitive_game",
               "inputs": [
                 {
                   "name": "game_id",
@@ -1431,6 +1475,26 @@
             },
             {
               "type": "function",
+              "name": "claim_tile_competitive",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "x",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "y",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
               "name": "game_winner",
               "inputs": [
                 {
@@ -1441,6 +1505,22 @@
               "outputs": [
                 {
                   "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "competitive_game_winner",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::felt252"
                 }
               ],
               "state_mutability": "view"
@@ -1599,15 +1679,25 @@
       "selector": "0x7ed3fa69c0c202f6b15776482927d3ea6990899ffec561d6f1cab40cd0b1ae7",
       "systems": [
         "create_game",
+        "create_competitive_game",
         "join_game",
+        "join_competitive_game",
         "start_game",
+        "start_competitive_game",
         "claim_tile",
+        "claim_tile_competitive",
         "upgrade"
       ]
     }
   ],
   "libraries": [],
   "models": [
+    {
+      "members": [],
+      "class_hash": "0x85630f1bbc6c78ca679b108892fda553116f31871b1429d11e629d09b2572b",
+      "tag": "octa_flip-CompetitiveGame",
+      "selector": "0x3441cc29a065ca633ddda5be4b3e27a4393db8f61b89e888b06d4cbfa83fca8"
+    },
     {
       "members": [],
       "class_hash": "0x24c6f4d7202b098a841b033f4a1fb4760adcc0d690e19d3411eafde49b974d8",
@@ -1628,6 +1718,12 @@
     },
     {
       "members": [],
+      "class_hash": "0x120996f30797ee428ca12ea6c3c99b57ec52141333b431ad70f3e2e03da678f",
+      "tag": "octa_flip-PlayerInCompetitiveGame",
+      "selector": "0x512d3ee9bd6e69777358926c11fb388c9cba0a0f57f6c557972c5b01f28a2b1"
+    },
+    {
+      "members": [],
       "class_hash": "0x7672cd447fa83c32089eacc94b793146c55826504bb5cdc44087bbf8b64aa8",
       "tag": "octa_flip-PlayerInGame",
       "selector": "0x3368d9434d6716bf802ce4af9ab3f2dd2010cf1179fcc2b6eea30e842063b96"
@@ -1637,9 +1733,27 @@
       "class_hash": "0x766cfc770b3aaf1ea98ecfe9da3e399a6e0837c93265855a6e567fe633ea4b2",
       "tag": "octa_flip-Tile",
       "selector": "0x4240445a40f4bcd92c87e32bf29f431f2ce2c93163f0d461312bef7a73bd42a"
+    },
+    {
+      "members": [],
+      "class_hash": "0x35b32dcb3d9600160cbc1fa3a2bd2cb06e12be2e3eea6466aa0835646ad5a50",
+      "tag": "octa_flip-TileCompetitive",
+      "selector": "0x917cc298fbbc9a8e672f9b4bec7e31fcb1ce06b19493ae9246136848c04579"
     }
   ],
   "events": [
+    {
+      "members": [],
+      "class_hash": "0x2b5555628fed3d61d527eb1ebc1a8671f7ddc2831a1a04eb5add92d15b1b8e5",
+      "tag": "octa_flip-CompetitiveGameEnded",
+      "selector": "0x48b99e6a859abce20ae552ac167075231b76625bb5e45d1bcb826e0d2e8f580"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6bd3ef806e89724ae96dcd7f505ece06b9c51cc5de86ccc99443e75caf3c559",
+      "tag": "octa_flip-CompetitivePlayerJoined",
+      "selector": "0x15645e18e1b7d244c9c1bebbefc3d4a7ee9a84c53c5c97f02612dc911647b6d"
+    },
     {
       "members": [],
       "class_hash": "0x507159cdd819c08286a59227091f000c816b21cf671f48262984431d16db65d",
