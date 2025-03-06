@@ -517,6 +517,8 @@ pub mod actions {
 
             game.status = ONGOING;
             game.is_live = true;
+            game.starts_at = starts_at;
+            game.ends_at = ends_at;
 
             world.write_model(@game);
 
