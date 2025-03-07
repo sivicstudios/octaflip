@@ -26,3 +26,6 @@ dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.2.1" }
 # rpc_url = "https://api.cartridge.gg/x/octaflipdev1/katana"
 
 [profile.sepolia]
+
+
+[profile.mainnet]

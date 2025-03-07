@@ -1,0 +1,23 @@
+[world]
+name = "Octa Flip"
+description = "Dominate your world"
+cover_uri = "https://cover.octaflip.com"
+icon_uri = "https://icon.octaflip.com"
+website = "https://octaflip.com"
+seed = "octaflip"
+
+
+[world.socials]
+x = "https://x.octaflip.com"
+discord = "https://discord.octaflip.com"
+github = "https://github.octaflip.com"
+telegram = "https://telegram.octaflip.com"
+
+[namespace]
+default = "octa_flip"
+
+[env]
+# world_address = "0x061017a1419eed9689c0dcb7b9d242cb489a4961f3ae884e1d92bfad0288958d"
+
+[writers]
+"octa_flip" = ["octa_flip-actions"]
