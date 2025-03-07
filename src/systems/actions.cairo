@@ -746,7 +746,7 @@ pub mod actions {
         /// 3.  For each tile, it retrieves the tile's color and increments the corresponding color
         /// count.
         /// 4.  Determines the color with the highest count of claimed tiles.
-        /// 5.  Returns the color of the winning player.
+        /// 5.  Returns the color of the winning player or `TIE` if the game is a tie.
         ///
         /// # Arguments
         ///
@@ -756,11 +756,6 @@ pub mod actions {
         /// # Returns
         ///
         /// The color (`felt252`) of the player who claimed the most tiles, representing the winner.
-        ///
-        /// # Note
-        ///
-        /// If there is a tie, this function returns the color of the first player found with the
-        /// maximum tile count.
         fn competitive_game_winner(self: @ContractState, game_id: u64) -> felt252 {
             let world = self.world_default();
             let game: CompetitiveGame = world.read_model(game_id);
@@ -788,6 +783,11 @@ pub mod actions {
             for i in 0..colors.len() {
                 let color = *colors.at(i);
                 let count = colors_count.get(color);
+
+                if count == winning_count {
+                    winner = 'TIE';
+                    continue;
+                }
 
                 if count > winning_count {
                     winning_count = count;
