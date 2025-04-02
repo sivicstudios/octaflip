@@ -236,7 +236,7 @@ pub mod GameActions {
         /// A unique `u64` representing the new game ID.
         fn game_uid(ref self: ContractState) -> u64 {
             let mut world = self.world_default();
-            let mut game_counter: GameCounter = world.read_model('v1');
+            let mut game_counter: GameCounter = world.read_model('v2');
             let game_id = game_counter.current_val + 1;
             game_counter.current_val = game_id;
             world.write_model(@game_counter);
