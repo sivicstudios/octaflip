@@ -1,24 +1,17 @@
-use octa_flip::models::{
-    CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame, PlayerInGame,
-    TileCompetitive,
-};
-use octa_flip::interfaces::actions::IActions;
+use octa_flip::models::game::{Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+use octa_flip::interfaces::game::IGame;
 
 // dojo decorator
 #[dojo::contract]
-pub mod actions {
-    use super::{
-        IActions, CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame,
-        PlayerInGame, TileCompetitive,
-    };
-    use octa_flip::errors::actions::ActionErrors::{
+pub mod GameActions {
+    use super::{IGame, Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::errors::game::GameErrors::{
         INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
         ATLEAST_TWO_PLAYERS, INVALID_CALLER, GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING,
         X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS, PLAYER_NOT_IN_GAME,
     };
-    use octa_flip::events::actions::ActionEvents::{
-        GameCreated, PlayerJoined, GameStarted, GameEnded, TileClaim,
-    };
+    use octa_flip::events::game::GameEvents::{GameCreated, GameStarted, GameEnded, TileClaim};
+    use octa_flip::events::player::PlayerEvents::PlayerJoined;
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
     use core::dict::Felt252Dict;
     use core::num::traits::Bounded;
@@ -29,7 +22,7 @@ pub mod actions {
     use dojo::event::EventStorage;
 
     #[abi(embed_v0)]
-    impl ActionsImpl of IActions<ContractState> {
+    impl ActionsImpl of IGame<ContractState> {
         fn create_game(ref self: ContractState, grid_size: u8, duration: u64) -> u64 {
             let mut world = self.world_default();
             let game_id = self.game_uid();
@@ -41,7 +34,7 @@ pub mod actions {
                 false => grid_size,
             };
 
-            let new_game: CompetitiveGame = CompetitiveGame {
+            let new_game: Game = Game {
                 id: game_id,
                 board_width: grid_size,
                 board_height: grid_size,
@@ -72,11 +65,11 @@ pub mod actions {
             let mut world = self.world_default();
             let player_address = get_caller_address();
 
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            let mut game: Game = world.read_model(game_id);
             assert(game.board_width != 0, GAME_DOES_NOT_EXIST);
             assert(game.status == WAITING, GAME_NOT_IN_SESSION);
 
-            let player: PlayerInCompetitiveGame = world.read_model((game_id, player_address));
+            let player: PlayerInGame = world.read_model((game_id, player_address));
             assert(!player.joined, ALREADY_JOINED);
 
             let colors = colors();
@@ -85,7 +78,7 @@ pub mod actions {
                 .unwrap();
             let color = *colors.at(colorindex);
 
-            let player = PlayerInCompetitiveGame { game_id, player_address, color, joined: true };
+            let player = PlayerInGame { game_id, player_address, color, joined: true };
             world.write_model(@player);
 
             game.number_of_players += 1;
@@ -101,7 +94,7 @@ pub mod actions {
 
         fn start_game(ref self: ContractState, game_id: u64) {
             let mut world = self.world_default();
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            let mut game: Game = world.read_model(game_id);
 
             let game_status = game.status;
             assert(game.number_of_players > 1, ATLEAST_TWO_PLAYERS);
@@ -129,7 +122,7 @@ pub mod actions {
 
         fn claim_tile(ref self: ContractState, game_id: u64, x: u8, y: u8) {
             let mut world = self.world_default();
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            let mut game: Game = world.read_model(game_id);
 
             let starts_at = game.starts_at;
             let ends_at = game.ends_at;
@@ -156,11 +149,11 @@ pub mod actions {
             assert(y < game.board_height, Y_IS_OUT_OF_BOUNDS);
 
             let player = get_caller_address();
-            let in_game: PlayerInCompetitiveGame = world.read_model((game_id, player));
+            let in_game: PlayerInGame = world.read_model((game_id, player));
             assert(in_game.joined, PLAYER_NOT_IN_GAME);
 
             let player_at_position = PlayerAtPosition { game_id, x, y, player };
-            let tile = TileCompetitive { x, y, game_id, claimed: player, color: in_game.color };
+            let tile = Tile { x, y, game_id, claimed: player, color: in_game.color };
 
             world.write_model(@player_at_position);
             world.write_model(@tile);
@@ -170,7 +163,7 @@ pub mod actions {
 
         fn game_winner(self: @ContractState, game_id: u64) -> felt252 {
             let world = self.world_default();
-            let game: CompetitiveGame = world.read_model(game_id);
+            let game: Game = world.read_model(game_id);
 
             let colors = colors();
             let mut colors_count: Felt252Dict<u64> = Default::default();
@@ -184,7 +177,7 @@ pub mod actions {
                 let x = i % board_width;
                 let y = i % board_height;
 
-                let tile: TileCompetitive = world.read_model((x, y, game_id));
+                let tile: Tile = world.read_model((x, y, game_id));
                 let color_count = colors_count.get(tile.color);
                 colors_count.insert(tile.color, color_count + 1)
             };
@@ -243,7 +236,7 @@ pub mod actions {
         /// A unique `u64` representing the new game ID.
         fn game_uid(ref self: ContractState) -> u64 {
             let mut world = self.world_default();
-            let mut game_counter: GameCounter = world.read_model('v0');
+            let mut game_counter: GameCounter = world.read_model('v1');
             let game_id = game_counter.current_val + 1;
             game_counter.current_val = game_id;
             world.write_model(@game_counter);

@@ -1,4 +1,4 @@
-pub mod ActionErrors {
+pub mod GameErrors {
     pub const INVALID_GAME_SESSION: felt252 = 'Invalid game session';
     pub const GAME_DOES_NOT_EXIST: felt252 = 'Game does not exist';
     pub const GAME_NOT_IN_SESSION: felt252 = 'Game not in session';

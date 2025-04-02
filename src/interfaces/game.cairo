@@ -1,6 +1,6 @@
 // define the interface
 #[starknet::interface]
-pub trait IActions<T> {
+pub trait IGame<T> {
     /// Creates a new competitive game with the given grid size and duration.
     ///
     /// This function initializes a new competitive game with default settings, assigns a unique
