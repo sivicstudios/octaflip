@@ -2,7 +2,6 @@ use octa_flip::models::{
     CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame, PlayerInGame,
     TileCompetitive,
 };
-
 use octa_flip::interfaces::actions::IActions;
 
 // dojo decorator
@@ -11,6 +10,11 @@ pub mod actions {
     use super::{
         IActions, CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame,
         PlayerInGame, TileCompetitive,
+    };
+    use octa_flip::errors::actions::ActionErrors::{
+        INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
+        ATLEAST_TWO_PLAYERS, INVALID_CALLER, GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING,
+        X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS, PLAYER_NOT_IN_GAME,
     };
     use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
     use core::dict::Felt252Dict;
@@ -144,7 +148,7 @@ pub mod actions {
             let mut world = self.world_default();
             let game_id = self.game_uid();
 
-            assert(duration > 0, 'Invalid Game Session');
+            assert(duration > 0, INVALID_GAME_SESSION);
 
             let grid_size = match grid_size == 0 || grid_size > Bounded::<u8>::MAX {
                 true => GRID_SIZE,
@@ -183,11 +187,11 @@ pub mod actions {
             let player_address = get_caller_address();
 
             let mut game: CompetitiveGame = world.read_model(game_id);
-            assert(game.board_width != 0, 'Game Does Not Exist');
-            assert(game.status == WAITING, 'Game not in Session');
+            assert(game.board_width != 0, GAME_DOES_NOT_EXIST);
+            assert(game.status == WAITING, GAME_NOT_IN_SESSION);
 
             let player: PlayerInCompetitiveGame = world.read_model((game_id, player_address));
-            assert(!player.joined, 'Already Joined');
+            assert(!player.joined, ALREADY_JOINED);
 
             let colors = colors();
             let colorindex: u32 = (game.number_of_players % colors.len().into())
@@ -214,13 +218,13 @@ pub mod actions {
             let mut game: CompetitiveGame = world.read_model(game_id);
 
             let game_status = game.status;
-            assert(game.number_of_players > 1, 'At least two players');
-            assert(game_status == WAITING, 'Game not in Session');
-            assert(game.pilot == get_caller_address(), 'Invalid Caller');
+            assert(game.number_of_players > 1, ATLEAST_TWO_PLAYERS);
+            assert(game_status == WAITING, GAME_NOT_IN_SESSION);
+            assert(game.pilot == get_caller_address(), INVALID_CALLER);
 
             let starts_at = get_block_timestamp();
             let ends_at = starts_at + game.duration;
-            assert(ends_at > starts_at, 'Invalid Game Session');
+            assert(ends_at > starts_at, INVALID_GAME_SESSION);
 
             game.status = ONGOING;
             game.is_live = true;
@@ -244,7 +248,7 @@ pub mod actions {
             let starts_at = game.starts_at;
             let ends_at = game.ends_at;
             let current_time = get_block_timestamp();
-            assert(current_time >= starts_at, 'Game has not started');
+            assert(current_time >= starts_at, GAME_HAS_NOT_STARTED);
 
             if current_time >= ends_at {
                 let winner: felt252 = self.game_winner(game_id);
@@ -261,13 +265,13 @@ pub mod actions {
                 return;
             }
 
-            assert(game.status == ONGOING, 'Game is not ongoing');
-            assert(x < game.board_width, 'X is out of bounds');
-            assert(y < game.board_height, 'Y is out of bounds');
+            assert(game.status == ONGOING, GAME_IS_NOT_ONGOING);
+            assert(x < game.board_width, X_IS_OUT_OF_BOUNDS);
+            assert(y < game.board_height, Y_IS_OUT_OF_BOUNDS);
 
             let player = get_caller_address();
             let in_game: PlayerInCompetitiveGame = world.read_model((game_id, player));
-            assert(in_game.joined, 'Player is not in the game');
+            assert(in_game.joined, PLAYER_NOT_IN_GAME);
 
             let player_at_position = PlayerAtPosition { game_id, x, y, player };
             let tile = TileCompetitive { x, y, game_id, claimed: player, color: in_game.color };
@@ -377,8 +381,8 @@ pub mod actions {
             let player_one: PlayerInGame = world.read_model((game_id, 1));
             let player_two: PlayerInGame = world.read_model((game_id, 2));
 
-            assert(player_one.player_address != zero_address(), 'Player not in game');
-            assert(player_two.player_address != zero_address(), 'Player not in game');
+            assert(player_one.player_address != zero_address(), PLAYER_NOT_IN_GAME);
+            assert(player_two.player_address != zero_address(), PLAYER_NOT_IN_GAME);
 
             (player_one.player_address, player_two.player_address)
         }

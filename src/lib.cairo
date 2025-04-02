@@ -12,5 +12,9 @@ pub mod interfaces {
     pub mod actions;
 }
 
+pub mod errors {
+    pub mod actions;
+}
+
 pub mod utils;
 pub mod constants;
