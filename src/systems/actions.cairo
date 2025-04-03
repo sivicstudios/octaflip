@@ -1,29 +1,40 @@
 use octa_flip::models::game::{Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
-use octa_flip::interfaces::game::IGame;
+use octa_flip::interfaces::actions::IAction;
 
 // dojo decorator
 #[dojo::contract]
 pub mod GameActions {
-    use super::{IGame, Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+    use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
+    use core::dict::Felt252Dict;
+    use core::num::traits::Bounded;
+
+    use dojo::model::ModelStorage;
+    use dojo::event::EventStorage;
+
+    use super::{IAction, Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::events::game::GameEvents::{GameCreated, GameStarted, GameEnded, TileClaim};
+    use octa_flip::events::player::PlayerEvents::PlayerJoined;
+    use octa_flip::models::player::{Player, PlayerTrait, UsernameToAddress, AddressToUsername};
+    use octa_flip::events::player::PlayerEvents::{PlayerBirthed};
+    use octa_flip::utils::{zero_address, colors};
+    use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
+    use octa_flip::errors::player::PlayerErrors::{
+        USERNAME_CANNOT_BE_ZERO, USERNAME_ALREADY_TAKEN, USERNAME_ALREADY_CREATED,
+    };
     use octa_flip::errors::game::GameErrors::{
         INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
         ATLEAST_TWO_PLAYERS, INVALID_CALLER, GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING,
         X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS, PLAYER_NOT_IN_GAME,
     };
-    use octa_flip::events::game::GameEvents::{GameCreated, GameStarted, GameEnded, TileClaim};
-    use octa_flip::events::player::PlayerEvents::PlayerJoined;
-    use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
-    use core::dict::Felt252Dict;
-    use core::num::traits::Bounded;
-    use octa_flip::utils::{zero_address, colors};
-    use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
-
-    use dojo::model::ModelStorage;
-    use dojo::event::EventStorage;
 
     #[abi(embed_v0)]
-    impl ActionsImpl of IGame<ContractState> {
+    impl ActionsImpl of IAction<ContractState> {
         fn create_game(ref self: ContractState, grid_size: u8, duration: u64) -> u64 {
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+
             let mut world = self.world_default();
             let game_id = self.game_uid();
 
@@ -201,6 +212,58 @@ pub mod GameActions {
             };
 
             winner
+        }
+
+        /// /// ///
+        fn create_new_player(ref self: ContractState, username: felt252) {
+            let mut world = self.world_default();
+
+            let caller: ContractAddress = get_caller_address();
+
+            let zero_address: ContractAddress = contract_address_const::<0x0>();
+
+            // Validate username
+            assert(username != 0, USERNAME_CANNOT_BE_ZERO);
+
+            let existing_player: Player = world.read_model(username);
+
+            // Ensure player username is unique
+            assert(existing_player.owner == zero_address, USERNAME_ALREADY_TAKEN);
+
+            // Ensure player cannot update username by calling this function
+            let existing_username = self.get_username_from_address(caller);
+
+            assert(existing_username == 0, USERNAME_ALREADY_CREATED);
+
+            let new_player: Player = PlayerTrait::new(username, caller);
+            let username_to_address: UsernameToAddress = UsernameToAddress {
+                username, address: caller,
+            };
+            let address_to_username: AddressToUsername = AddressToUsername {
+                address: caller, username,
+            };
+
+            world.write_model(@new_player);
+            world.write_model(@username_to_address);
+            world.write_model(@address_to_username);
+
+            world.emit_event(@PlayerBirthed { username, timestamp: get_block_timestamp() });
+        }
+
+        fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
+            let mut world = self.world_default();
+
+            let address_map: AddressToUsername = world.read_model(address);
+
+            address_map.username
+        }
+
+        fn get_address_from_username(self: @ContractState, username: felt252) -> ContractAddress {
+            let mut world = self.world_default();
+
+            let username_map: UsernameToAddress = world.read_model(username);
+
+            username_map.address
         }
     }
 

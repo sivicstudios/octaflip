@@ -11,13 +11,11 @@ pub mod models {
 }
 
 pub mod systems {
-    pub mod game_actions;
-    pub mod player_actions;
+    pub mod actions;
 }
 
 pub mod interfaces {
-    pub mod game;
-    pub mod player;
+    pub mod actions;
 }
 
 pub mod events {

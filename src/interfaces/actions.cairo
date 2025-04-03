@@ -1,6 +1,8 @@
+use starknet::ContractAddress;
+
 // define the interface
 #[starknet::interface]
-pub trait IGame<T> {
+pub trait IAction<T> {
     /// Creates a new competitive game with the given grid size and duration.
     ///
     /// This function initializes a new competitive game with default settings, assigns a unique
@@ -152,4 +154,10 @@ pub trait IGame<T> {
     ///
     /// The color (`felt252`) of the player who claimed the most tiles, representing the winner.
     fn game_winner(self: @T, game_id: u64) -> felt252;
+
+    // // // 
+
+    fn create_new_player(ref self: T, username: felt252);
+    fn get_username_from_address(self: @T, address: ContractAddress) -> felt252;
+    fn get_address_from_username(self: @T, username: felt252) -> ContractAddress;
 }
