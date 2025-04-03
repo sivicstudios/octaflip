@@ -5,4 +5,5 @@ pub mod PlayerErrors {
     pub const USERNAME_ALREADY_TAKEN: felt252 = 'Username already taken';
     // Player has already created username
     pub const USERNAME_ALREADY_CREATED: felt252 = 'Username already created';
+    pub const PLAYER_NOT_REGISTERED: felt252 = 'Player not registered';
 }

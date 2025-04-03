@@ -1,25 +1,26 @@
-use octa_flip::models::game::{Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
-use octa_flip::interfaces::actions::IAction;
-
 // dojo decorator
 #[dojo::contract]
 pub mod GameActions {
-    use starknet::{ContractAddress, get_caller_address, get_block_timestamp, contract_address_const};
+    use starknet::{
+        ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
+    };
     use core::dict::Felt252Dict;
     use core::num::traits::Bounded;
 
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
 
-    use super::{IAction, Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::interfaces::actions::IAction;
+    use octa_flip::models::game::{Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::models::player::{Player, PlayerTrait, UsernameToAddress, AddressToUsername};
     use octa_flip::events::game::GameEvents::{GameCreated, GameStarted, GameEnded, TileClaim};
     use octa_flip::events::player::PlayerEvents::PlayerJoined;
-    use octa_flip::models::player::{Player, PlayerTrait, UsernameToAddress, AddressToUsername};
     use octa_flip::events::player::PlayerEvents::{PlayerBirthed};
     use octa_flip::utils::{zero_address, colors};
     use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
     use octa_flip::errors::player::PlayerErrors::{
         USERNAME_CANNOT_BE_ZERO, USERNAME_ALREADY_TAKEN, USERNAME_ALREADY_CREATED,
+        PLAYER_NOT_REGISTERED,
     };
     use octa_flip::errors::game::GameErrors::{
         INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
@@ -33,7 +34,7 @@ pub mod GameActions {
             // Get the account address of the caller
             let caller_address = get_caller_address();
             let caller_username: felt252 = self.get_username_from_address(caller_address);
-            assert(caller_username != 0, 'PLAYER NOT REGISTERED');
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
 
             let mut world = self.world_default();
             let game_id = self.game_uid();
@@ -76,6 +77,10 @@ pub mod GameActions {
             let mut world = self.world_default();
             let player_address = get_caller_address();
 
+            // Get the account address of the caller
+            let caller_username: felt252 = self.get_username_from_address(player_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
+
             let mut game: Game = world.read_model(game_id);
             assert(game.board_width != 0, GAME_DOES_NOT_EXIST);
             assert(game.status == WAITING, GAME_NOT_IN_SESSION);
@@ -107,10 +112,15 @@ pub mod GameActions {
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
 
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
+
             let game_status = game.status;
             assert(game.number_of_players > 1, ATLEAST_TWO_PLAYERS);
             assert(game_status == WAITING, GAME_NOT_IN_SESSION);
-            assert(game.pilot == get_caller_address(), INVALID_CALLER);
+            assert(game.pilot == caller_address, INVALID_CALLER);
 
             let starts_at = get_block_timestamp();
             let ends_at = starts_at + game.duration;
@@ -134,6 +144,11 @@ pub mod GameActions {
         fn claim_tile(ref self: ContractState, game_id: u64, x: u8, y: u8) {
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
+
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
 
             let starts_at = game.starts_at;
             let ends_at = game.ends_at;
