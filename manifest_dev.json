@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x75fc75bcd1a7f8b4bf64b74978b0f89c8cee44bb755c1dae6f82284756451ec",
-    "address": "0x3fe9b9d6bc5ac96f00c31c63bc0f1038b4378f2dce4de3fa5387aeadddf64a",
+    "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
+    "address": "0x69f1081f1b21d91e9a04ba5c1afe3a64fb740a1a56fe33b74fe4e38620ea93c",
     "seed": "octa_flip_dev_1",
     "name": "Octa Flip",
     "entrypoints": [
@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x1f0a0225a5d24a86534a5beecad397ba47074b81f3da48c02aefe8c63a36f6e",
-      "class_hash": "0x6547a53bce56f74984a0073c628cac01df3d81e88352b23479924752f980928",
+      "address": "0x2c2f35e54d5ee7d2bc4a4b1eb0ca679db33e50ea245955ec947457d3c88eeed",
+      "class_hash": "0x69fb2d859ed9e8b076003ef1fec52c2af54fef60a0e43ace53a1895176efcaf",
       "abi": [
         {
           "type": "impl",
@@ -1708,49 +1708,49 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x4a82705fee9904c997fe2341c43446703f23086b70774239b1e6ff95960ff52",
+      "class_hash": "0x46f6ad1435fcee0208c17f1ff0e79b32ff4e1e680407cdf1a8988a374b613c4",
       "tag": "octa_flip-AddressToUsername",
       "selector": "0x2ef45f5dca6c219680f06ce60c4d902085ddfea603d2f91105e424e243d3fe7"
     },
     {
       "members": [],
-      "class_hash": "0x6fe43be4363a910629a797012881ecb984178b4c2c351fd391533f8a8d14437",
+      "class_hash": "0x3f809d5abab7b3a0b01ad9e037e39a6ec5971fbb8ff94b5b79ddbc4ef65bd72",
       "tag": "octa_flip-Game",
       "selector": "0x23892fb4f5e5c817c4b7eee1a1e631cfb70d60266e4446e982afa2c78ca91ad"
     },
     {
       "members": [],
-      "class_hash": "0x509996711f4c9e4accebeaabd1daf9ba54cae0b4694791793eef18e24372d01",
+      "class_hash": "0x32a34df8607d4fd0af000e7f1ccce9edfeda3e567e0aba707e3535d6d3cfbff",
       "tag": "octa_flip-GameCounter",
       "selector": "0x203023acb77511e176c2e522c721e56c36ba4930f55dc4af0852a2014693324"
     },
     {
       "members": [],
-      "class_hash": "0x51d99cebddab0e96dcce4e65d8c4372770884fcdd5b8a5a60654040ecdc9ccf",
+      "class_hash": "0xfb1af5dc68a3312a54a5153eba8671633281bc7096599e9fbecf248cc62d62",
       "tag": "octa_flip-Player",
       "selector": "0x551ae59d502d46dc30cec4711fb02fb5ab36a55cdc4f85c04520c2d174f231"
     },
     {
       "members": [],
-      "class_hash": "0x387c182817388503b97f586ffc4fe286d8cdf72ed56bb8acebd573626df5757",
+      "class_hash": "0xc60801ed16907cf8bfe748beee4dea281bde3040adb16081d83b57678db743",
       "tag": "octa_flip-PlayerAtPosition",
       "selector": "0x3725b070ee58746ed644b73956d46d5a329179d026c69d53b8a9becf83321b9"
     },
     {
       "members": [],
-      "class_hash": "0x2293fa9b47e9d8a817a51b5ab1ce4f1a2efb79ed17804e5948abb092e554652",
+      "class_hash": "0x6ce86fcd446bd890000239d40a9eea13e70610ee6534dba809f842720b4744",
       "tag": "octa_flip-PlayerInGame",
       "selector": "0x3368d9434d6716bf802ce4af9ab3f2dd2010cf1179fcc2b6eea30e842063b96"
     },
     {
       "members": [],
-      "class_hash": "0x635f1503893f09066691c691dec6ca966b7406130d4288db20ccbc3f5f9c875",
+      "class_hash": "0x448028e739cca220058e401abb2a59b95e2a91bf237cff5608c5a16b769cd1c",
       "tag": "octa_flip-Tile",
       "selector": "0x4240445a40f4bcd92c87e32bf29f431f2ce2c93163f0d461312bef7a73bd42a"
     },
     {
       "members": [],
-      "class_hash": "0x304e05ac4af08c471ed5d9285106c38194a72d7b5685ce389e3c53f6d34071f",
+      "class_hash": "0x67770350dd368942a68c2fdd267ff30b2a91b7835cde2dbe2b4d681ba63cc19",
       "tag": "octa_flip-UsernameToAddress",
       "selector": "0x7d3f6b593eaf54f3bb7a7a2568fad3b3198c1c79ccfdb8e23a4d6f1ac985479"
     }
@@ -1758,37 +1758,37 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x3536f8dc5d4ef95ab4a0475fb0239571a46ad704c8ebf4f03cdc5b355b1caff",
+      "class_hash": "0x140f8da7055868ef850bb3caf00bd3a3f65666adbecce9c5f55e393c31a173a",
       "tag": "octa_flip-GameCreated",
       "selector": "0x261344ba354d8143ed382477769c3e732f9fa0f92f786dd435338c58c8f901b"
     },
     {
       "members": [],
-      "class_hash": "0x69788f679674ef84db0719d4a6a12efd00e8a68c9f8a2af64a5992fe1706e98",
+      "class_hash": "0x7a2be76ce9cd2b9a7302af7c11faec1ec8e345a7be41e5ee923929919dc885c",
       "tag": "octa_flip-GameEnded",
       "selector": "0x1e0e56909cbb93977738c998383c2cb09c89d2fbab6fea65269877b5e51cad4"
     },
     {
       "members": [],
-      "class_hash": "0x71cf84983b14391bd2d6edeeac7e1b98ba0df6b8918d454ae96ac8138e03fc8",
+      "class_hash": "0x79e3b3cf7dd70b3e1b08979d166453b98dd1a741d2b0f249623cb08c4cb2a8c",
       "tag": "octa_flip-GameStarted",
       "selector": "0x24e014d3f38f6a57005b967e747d892c9ad5941bfd9abe40c661b1f22a7e6be"
     },
     {
       "members": [],
-      "class_hash": "0x22ffb694657c37b4dd498fcd2490c67105b65ef7a1acd562568da117cd52287",
+      "class_hash": "0x640bf65fbc2fbebf0152b5d40238108ae16422ed3f1ca315e8aff064dbf71a9",
       "tag": "octa_flip-PlayerBirthed",
       "selector": "0x48eb48be8d1d81c741a0bd0145f653f81872c6e12a0e17b20971e8e9fe79a70"
     },
     {
       "members": [],
-      "class_hash": "0x33ecaac136baa02e2e27f1d66782280b70f05974c26313027d2d2bbf154b8a9",
+      "class_hash": "0x16cfbe74a07082060cab3c8a22f35218b8da58f4cc3b05c25d1193c61264494",
       "tag": "octa_flip-PlayerJoined",
       "selector": "0x666b015cf8dc8ec243e5563f4139da761304c64307c97797d0e3307c2b83924"
     },
     {
       "members": [],
-      "class_hash": "0x447bcd3961b5f1bcaabba4a3f2632e10163c700b56071ee95945976df82f128",
+      "class_hash": "0x65df40b493135bc55c8aa1b4571e7ff508558622fc6ddd25529e3926f759080",
       "tag": "octa_flip-TileClaim",
       "selector": "0x79dd84075220c07fa8b25fea8c2f760deee03640bc7724d4fcce6711c291b17"
     }
