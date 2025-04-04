@@ -229,7 +229,17 @@ pub mod GameActions {
             winner
         }
 
+        fn get_game_data(self: @ContractState, game_id: u64) -> Game {
+            let world = self.world_default();
+            let game: Game = world.read_model(game_id);
+            game
+        }
+
+
         /// /// ///
+
+        /// /// ///
+
         fn create_new_player(ref self: ContractState, username: felt252) {
             let mut world = self.world_default();
 

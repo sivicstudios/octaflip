@@ -1,4 +1,5 @@
 use starknet::ContractAddress;
+use octa_flip::models::game::{Game};
 
 // define the interface
 #[starknet::interface]
@@ -154,6 +155,8 @@ pub trait IAction<T> {
     ///
     /// The color (`felt252`) of the player who claimed the most tiles, representing the winner.
     fn game_winner(self: @T, game_id: u64) -> felt252;
+
+    fn get_game_data(self: @T, game_id: u64) -> Game;
 
     // // // 
 

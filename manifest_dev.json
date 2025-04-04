@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x6c477ba0cf916b0e83e962221850c21d9219a762cefbc5f99ae5d6eff559e2c",
-      "class_hash": "0x63d13698c660b6ead2b5d6c76765008f2e7d066e60f030cab698d8cb2173be7",
+      "address": "0x1f0a0225a5d24a86534a5beecad397ba47074b81f3da48c02aefe8c63a36f6e",
+      "class_hash": "0x6547a53bce56f74984a0073c628cac01df3d81e88352b23479924752f980928",
       "abi": [
         {
           "type": "impl",
@@ -1369,6 +1369,66 @@
           "type": "impl",
           "name": "ActionsImpl",
           "interface_name": "octa_flip::interfaces::actions::IAction"
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "octa_flip::models::game::Game",
+          "members": [
+            {
+              "name": "id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "board_width",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "board_height",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "number_of_players",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "status",
+              "type": "core::felt252"
+            },
+            {
+              "name": "is_live",
+              "type": "core::bool"
+            },
+            {
+              "name": "starts_at",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "ends_at",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "duration",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "pilot",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
         },
         {
           "type": "interface",
@@ -1450,6 +1510,22 @@
               "outputs": [
                 {
                   "type": "core::felt252"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "get_game_data",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "octa_flip::models::game::Game"
                 }
               ],
               "state_mutability": "view"
