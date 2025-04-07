@@ -11,7 +11,7 @@ pub struct Player {
     pub number_of_games_played: u256, 
     pub number_of_games_won: u256,
     pub number_of_games_created: u256,
-    pub number_of_tiles_flipped: u256,
+    pub number_of_tiles_claimed: u256,
 }
 
 
@@ -45,7 +45,7 @@ impl PlayerImpl of PlayerTrait {
             number_of_games_played: 0,
             number_of_games_won: 0,
             number_of_games_created: 0,
-            number_of_tiles_flipped: 0,
+            number_of_tiles_claimed: 0,
         }
     }
 }

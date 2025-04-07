@@ -57,9 +57,14 @@ pub mod GameActions {
                 ends_at: 0,
                 pilot: get_caller_address(),
                 duration,
+                winner: 0,
             };
 
+            let mut player: Player = world.read_model(caller_username);
+            player.number_of_games_created += 1;
+
             world.write_model(@new_game);
+            world.write_model(@player);
 
             world
                 .emit_event(
@@ -82,11 +87,12 @@ pub mod GameActions {
             assert(caller_username != 0, PLAYER_NOT_REGISTERED);
 
             let mut game: Game = world.read_model(game_id);
+            let mut player: Player = world.read_model(caller_username);
             assert(game.board_width != 0, GAME_DOES_NOT_EXIST);
             assert(game.status == WAITING, GAME_NOT_IN_SESSION);
 
-            let player: PlayerInGame = world.read_model((game_id, player_address));
-            assert(!player.joined, ALREADY_JOINED);
+            let already_joined_player: PlayerInGame = world.read_model((game_id, player_address));
+            assert(!already_joined_player.joined, ALREADY_JOINED);
 
             let colors = colors();
             let colorindex: u32 = (game.number_of_players % colors.len().into())
@@ -94,11 +100,14 @@ pub mod GameActions {
                 .unwrap();
             let color = *colors.at(colorindex);
 
-            let player = PlayerInGame { game_id, player_address, color, joined: true };
-            world.write_model(@player);
+            let newly_joined_player = PlayerInGame { game_id, player_address, color, joined: true };
+            world.write_model(@newly_joined_player);
 
             game.number_of_players += 1;
             world.write_model(@game);
+
+            player.number_of_games_played += 1;
+            world.write_model(@player);
 
             world
                 .emit_event(
@@ -155,11 +164,12 @@ pub mod GameActions {
             let current_time = get_block_timestamp();
             assert(current_time >= starts_at, GAME_HAS_NOT_STARTED);
 
+            // Game time has elapsed
             if current_time >= ends_at {
                 let winner: felt252 = self.game_winner(game_id);
                 game.is_live = false;
                 game.status = ENDED;
-                //game.winner = winner;
+                game.winner = winner;
                 world.write_model(@game);
                 world
                     .emit_event(
@@ -174,17 +184,24 @@ pub mod GameActions {
             assert(x < game.board_width, X_IS_OUT_OF_BOUNDS);
             assert(y < game.board_height, Y_IS_OUT_OF_BOUNDS);
 
-            let player = get_caller_address();
-            let in_game: PlayerInGame = world.read_model((game_id, player));
+            let in_game: PlayerInGame = world.read_model((game_id, caller_address));
             assert(in_game.joined, PLAYER_NOT_IN_GAME);
 
-            let player_at_position = PlayerAtPosition { game_id, x, y, player };
-            let tile = Tile { x, y, game_id, claimed: player, color: in_game.color };
+            let player_at_position = PlayerAtPosition { game_id, x, y, player: caller_address };
+            let tile = Tile { x, y, game_id, claimed: caller_address, color: in_game.color };
+
+            let mut player: Player = world.read_model(caller_username);
+            player.number_of_tiles_claimed += 1;
 
             world.write_model(@player_at_position);
             world.write_model(@tile);
+            world.write_model(@player);
             world
-                .emit_event(@TileClaim { game_id, x, y, player, timestamp: get_block_timestamp() });
+                .emit_event(
+                    @TileClaim {
+                        game_id, x, y, player: caller_address, color: in_game.color, timestamp: get_block_timestamp(),
+                    },
+                );
         }
 
         fn game_winner(self: @ContractState, game_id: u64) -> felt252 {
@@ -201,7 +218,7 @@ pub mod GameActions {
             let board_width = game.board_width;
             for i in 0..(board_height * board_width) {
                 let x = i % board_width;
-                let y = i % board_height;
+                let y = i / board_height;
 
                 let tile: Tile = world.read_model((x, y, game_id));
                 let color_count = colors_count.get(tile.color);

@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x2c2f35e54d5ee7d2bc4a4b1eb0ca679db33e50ea245955ec947457d3c88eeed",
-      "class_hash": "0x69fb2d859ed9e8b076003ef1fec52c2af54fef60a0e43ace53a1895176efcaf",
+      "address": "0x3355ac955a8b8a0bba15f54a3891cd6505e37c9d93b9da3e1dc85c278212533",
+      "class_hash": "0x6ee7cf5a233db46bad22959e71104ca06589851adee58d58b4bcf0123ed87b8",
       "abi": [
         {
           "type": "impl",
@@ -1427,6 +1427,10 @@
             {
               "name": "pilot",
               "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "winner",
+              "type": "core::felt252"
             }
           ]
         },
@@ -1714,7 +1718,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x3f809d5abab7b3a0b01ad9e037e39a6ec5971fbb8ff94b5b79ddbc4ef65bd72",
+      "class_hash": "0x164f1b2fb6806a00e36747d682e876c45a421add09dd29166dedf9f991c0235",
       "tag": "octa_flip-Game",
       "selector": "0x23892fb4f5e5c817c4b7eee1a1e631cfb70d60266e4446e982afa2c78ca91ad"
     },
@@ -1726,7 +1730,7 @@
     },
     {
       "members": [],
-      "class_hash": "0xfb1af5dc68a3312a54a5153eba8671633281bc7096599e9fbecf248cc62d62",
+      "class_hash": "0x34827a2c7996c5eb31aa3fb0b5935a0917af4f7ffd6100996ec4e808792c758",
       "tag": "octa_flip-Player",
       "selector": "0x551ae59d502d46dc30cec4711fb02fb5ab36a55cdc4f85c04520c2d174f231"
     },
@@ -1788,7 +1792,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x65df40b493135bc55c8aa1b4571e7ff508558622fc6ddd25529e3926f759080",
+      "class_hash": "0x2cc2aa074ef57771d62bfa92145ebaaa32a0f0036146a768e7c63972ef48128",
       "tag": "octa_flip-TileClaim",
       "selector": "0x79dd84075220c07fa8b25fea8c2f760deee03640bc7724d4fcce6711c291b17"
     }

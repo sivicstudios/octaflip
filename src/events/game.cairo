@@ -63,6 +63,9 @@ pub mod GameEvents {
         /// The y-coordinate of the claimed tile.
         #[key]
         pub y: u8,
+        // Color that claimed this tile
+        #[key]
+        pub color: felt252,
         /// The block timestamp when the tile was claimed.
         pub timestamp: u64,
     }

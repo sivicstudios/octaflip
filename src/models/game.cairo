@@ -27,9 +27,9 @@ pub struct Game {
     /// Address of the game pilot (creator).
     pub pilot: ContractAddress,
     /// Should a game winner be tracked?
-/// color -> Default state, Tie.
-/// color of the winning tile.
-// pub winner: felt252,
+    /// color -> Default state, Tie.
+    /// color of the winning tile.
+    pub winner: felt252,
 }
 
 /// Player in Competitive Game
