@@ -4,8 +4,7 @@ description = "Octa Flip game on Starknet"
 cover_uri = "https://octaflip.com"
 icon_uri = "https://octaflip.com"
 website = "https://octaflip.com"
-seed = "octaflipsepolia5"
-
+seed = "octaflipsepolia6"
 
 [world.socials]
 x = "https://octaflip.com"
@@ -17,7 +16,6 @@ telegram = "https://octaflip.com"
 default = "octa_flip"
 
 [env]
-world_address = "0x061017a1419eed9689c0dcb7b9d242cb489a4961f3ae884e1d92bfad0288958d"
 
 [writers]
-"octa_flip" = ["octa_flip-actions"]
+"octa_flip" = ["octa_flip-GameActions"]
