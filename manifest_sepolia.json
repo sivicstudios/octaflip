@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
-    "address": "0x1696594bf5282c0cdc93519157292e3dbb67dc53625aeb3f1feb9d5c228a425",
-    "seed": "octaflipsepolia6",
+    "address": "0x38955d2713a4a24d2ae99bf007928c9ae1cc02fea762d0580fe43c66ad6ef04",
+    "seed": "octaflipsepolia7",
     "name": "Octa Flip",
     "entrypoints": [
       "uuid",
@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x1e57c3db7f7a07cbce9edf790508f645a9c9f732e1f5b3e874505d8dcd2cd26",
-      "class_hash": "0x6ee7cf5a233db46bad22959e71104ca06589851adee58d58b4bcf0123ed87b8",
+      "address": "0x60e721b6a05aa387abb5c92aec61c344f7bf3698d7c54da58a6f7d28422c484",
+      "class_hash": "0x314a76660433b0d2c3b91d372aa3b6615f12f8935fdd78a0b3ab427874f686a",
       "abi": [
         {
           "type": "impl",
@@ -1402,6 +1402,10 @@
             },
             {
               "name": "number_of_players",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "number_of_tiles_claimed",
               "type": "core::integer::u64"
             },
             {
@@ -1718,7 +1722,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x164f1b2fb6806a00e36747d682e876c45a421add09dd29166dedf9f991c0235",
+      "class_hash": "0x4654ce42cd982e285ccb3ef6260e3dfbf3347da7a1e48b37cd99190883e449a",
       "tag": "octa_flip-Game",
       "selector": "0x23892fb4f5e5c817c4b7eee1a1e631cfb70d60266e4446e982afa2c78ca91ad"
     },
@@ -1727,6 +1731,12 @@
       "class_hash": "0x32a34df8607d4fd0af000e7f1ccce9edfeda3e567e0aba707e3535d6d3cfbff",
       "tag": "octa_flip-GameCounter",
       "selector": "0x203023acb77511e176c2e522c721e56c36ba4930f55dc4af0852a2014693324"
+    },
+    {
+      "members": [],
+      "class_hash": "0x76af671a712eb3c4650a3f3b5b35d85ed02be3176ed193ef9dafdd488621bc4",
+      "tag": "octa_flip-GameTag",
+      "selector": "0x3ab5b88cdebe01c94b7c8365eef6031eed9c84dab053bf65c989957c560bca0"
     },
     {
       "members": [],

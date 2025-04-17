@@ -4,7 +4,7 @@ description = "Octa Flip game on Starknet"
 cover_uri = "https://octaflip.com"
 icon_uri = "https://octaflip.com"
 website = "https://octaflip.com"
-seed = "octaflipsepolia6"
+seed = "octaflipsepolia7"
 
 [world.socials]
 x = "https://octaflip.com"

@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x3355ac955a8b8a0bba15f54a3891cd6505e37c9d93b9da3e1dc85c278212533",
-      "class_hash": "0x6ee7cf5a233db46bad22959e71104ca06589851adee58d58b4bcf0123ed87b8",
+      "address": "0xd830e1113f2650b0af34f6632814e5860a84bbd38eab61ae22affd1a1c1550",
+      "class_hash": "0x314a76660433b0d2c3b91d372aa3b6615f12f8935fdd78a0b3ab427874f686a",
       "abi": [
         {
           "type": "impl",
@@ -1402,6 +1402,10 @@
             },
             {
               "name": "number_of_players",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "number_of_tiles_claimed",
               "type": "core::integer::u64"
             },
             {
@@ -1718,7 +1722,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x164f1b2fb6806a00e36747d682e876c45a421add09dd29166dedf9f991c0235",
+      "class_hash": "0x4654ce42cd982e285ccb3ef6260e3dfbf3347da7a1e48b37cd99190883e449a",
       "tag": "octa_flip-Game",
       "selector": "0x23892fb4f5e5c817c4b7eee1a1e631cfb70d60266e4446e982afa2c78ca91ad"
     },
@@ -1727,6 +1731,12 @@
       "class_hash": "0x32a34df8607d4fd0af000e7f1ccce9edfeda3e567e0aba707e3535d6d3cfbff",
       "tag": "octa_flip-GameCounter",
       "selector": "0x203023acb77511e176c2e522c721e56c36ba4930f55dc4af0852a2014693324"
+    },
+    {
+      "members": [],
+      "class_hash": "0x76af671a712eb3c4650a3f3b5b35d85ed02be3176ed193ef9dafdd488621bc4",
+      "tag": "octa_flip-GameTag",
+      "selector": "0x3ab5b88cdebe01c94b7c8365eef6031eed9c84dab053bf65c989957c560bca0"
     },
     {
       "members": [],

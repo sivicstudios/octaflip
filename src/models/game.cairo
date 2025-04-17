@@ -14,6 +14,8 @@ pub struct Game {
     pub board_height: u8,
     /// Current number of players in the competitive game.
     pub number_of_players: u64,
+    /// Total number of tiles claimed during game session.
+    pub number_of_tiles_claimed: u64,
     /// Status of the game (WAITING, ONGOING, ENDED).
     pub status: felt252,
     /// Indicates whether the game is currently live (true) or not (false).

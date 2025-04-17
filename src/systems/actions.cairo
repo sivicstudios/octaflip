@@ -48,6 +48,7 @@ pub mod GameActions {
                 board_width: grid_size,
                 board_height: grid_size,
                 number_of_players: 0,
+                number_of_tiles_claimed: 0,
                 status: WAITING,
                 is_live: false,
                 starts_at: 0,
@@ -196,10 +197,12 @@ pub mod GameActions {
 
             let mut player: Player = world.read_model(caller_username);
             player.number_of_tiles_claimed += 1;
+            game.number_of_tiles_claimed += 1;
 
             world.write_model(@player_at_position);
             world.write_model(@tile);
             world.write_model(@player);
+            world.write_model(@game);
             world
                 .emit_event(
                     @TileClaim {
