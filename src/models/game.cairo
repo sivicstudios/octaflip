@@ -49,6 +49,17 @@ pub struct PlayerInGame {
     pub joined: bool,
 }
 
+#[derive(Drop, Copy, Serde)]
+#[dojo::model]
+pub struct GameTag {
+    #[key]
+    pub game_id: u64,
+    #[key]
+    pub player_id: u64,
+    pub color: felt252,
+    pub player_address: ContractAddress,
+}
+
 /// TileCompetitive
 /// Represents a tile on the game board, and contains information about the piece placed on it.
 #[derive(Serde, Copy, Drop)]

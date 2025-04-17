@@ -1,31 +1,28 @@
 // dojo decorator
 #[dojo::contract]
 pub mod GameActions {
-    use starknet::{
-        ContractAddress, get_caller_address, get_block_timestamp, contract_address_const,
-    };
     use core::dict::Felt252Dict;
     use core::num::traits::Bounded;
-
-    use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
-
-    use octa_flip::interfaces::actions::IAction;
-    use octa_flip::models::game::{Game, GameCounter, PlayerAtPosition, PlayerInGame, Tile};
-    use octa_flip::models::player::{Player, PlayerTrait, UsernameToAddress, AddressToUsername};
-    use octa_flip::events::game::GameEvents::{GameCreated, GameStarted, GameEnded, TileClaim};
-    use octa_flip::events::player::PlayerEvents::PlayerJoined;
-    use octa_flip::events::player::PlayerEvents::{PlayerBirthed};
-    use octa_flip::utils::{zero_address, colors};
+    use dojo::model::ModelStorage;
     use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
-    use octa_flip::errors::player::PlayerErrors::{
-        USERNAME_CANNOT_BE_ZERO, USERNAME_ALREADY_TAKEN, USERNAME_ALREADY_CREATED,
-        PLAYER_NOT_REGISTERED,
-    };
     use octa_flip::errors::game::GameErrors::{
-        INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
-        ATLEAST_TWO_PLAYERS, INVALID_CALLER, GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING,
-        X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS, PLAYER_NOT_IN_GAME,
+        ALREADY_JOINED, ATLEAST_TWO_PLAYERS, GAME_DOES_NOT_EXIST, GAME_HAS_ENDED,
+        GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING, GAME_NOT_IN_SESSION, INVALID_CALLER,
+        INVALID_GAME_SESSION, PLAYER_NOT_IN_GAME, X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS,
+    };
+    use octa_flip::errors::player::PlayerErrors::{
+        PLAYER_NOT_REGISTERED, USERNAME_ALREADY_CREATED, USERNAME_ALREADY_TAKEN,
+        USERNAME_CANNOT_BE_ZERO,
+    };
+    use octa_flip::events::game::GameEvents::{GameCreated, GameEnded, GameStarted, TileClaim};
+    use octa_flip::events::player::PlayerEvents::{PlayerBirthed, PlayerJoined};
+    use octa_flip::interfaces::actions::IAction;
+    use octa_flip::models::game::{Game, GameCounter, GameTag, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::models::player::{AddressToUsername, Player, PlayerTrait, UsernameToAddress};
+    use octa_flip::utils::{colors, zero_address};
+    use starknet::{
+        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
     };
 
     #[abi(embed_v0)]
@@ -109,6 +106,11 @@ pub mod GameActions {
             player.number_of_games_played += 1;
             world.write_model(@player);
 
+            let game_tag: GameTag = GameTag {
+                game_id, player_id: game.number_of_players, color, player_address,
+            };
+            world.write_model(@game_tag);
+
             world
                 .emit_event(
                     @PlayerJoined {
@@ -163,6 +165,7 @@ pub mod GameActions {
             let ends_at = game.ends_at;
             let current_time = get_block_timestamp();
             assert(current_time >= starts_at, GAME_HAS_NOT_STARTED);
+            assert(game.status != ENDED, GAME_HAS_ENDED);
 
             // Game time has elapsed
             if current_time >= ends_at {
@@ -171,6 +174,7 @@ pub mod GameActions {
                 game.status = ENDED;
                 game.winner = winner;
                 world.write_model(@game);
+                self.update_player_win_count(game_id, winner);
                 world
                     .emit_event(
                         @GameEnded {
@@ -199,7 +203,12 @@ pub mod GameActions {
             world
                 .emit_event(
                     @TileClaim {
-                        game_id, x, y, player: caller_address, color: in_game.color, timestamp: get_block_timestamp(),
+                        game_id,
+                        x,
+                        y,
+                        player: caller_address,
+                        color: in_game.color,
+                        timestamp: get_block_timestamp(),
                     },
                 );
         }
@@ -369,6 +378,22 @@ pub mod GameActions {
             assert(player_two.player_address != zero_address(), PLAYER_NOT_IN_GAME);
 
             (player_one.player_address, player_two.player_address)
+        }
+
+        fn update_player_win_count(ref self: ContractState, game_id: u64, winning_team: felt252) {
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
+
+            for player_id in 1..game.number_of_players + 1 {
+                let tag: GameTag = world.read_model((game_id, player_id));
+                let caller_username: felt252 = self.get_username_from_address(tag.player_address);
+                let mut player: Player = world.read_model(caller_username);
+
+                if tag.color == winning_team {
+                    player.number_of_games_won += 1;
+                    world.write_model(@player);
+                }
+            }
         }
     }
 }
