@@ -4,7 +4,7 @@ description = "Dominate your world"
 cover_uri = "https://cover.octaflip.com"
 icon_uri = "https://icon.octaflip.com"
 website = "https://octaflip.com"
-seed = "octaflip"
+seed = "octaflipv2"
 
 
 [world.socials]
@@ -17,7 +17,6 @@ telegram = "https://telegram.octaflip.com"
 default = "octa_flip"
 
 [env]
-# world_address = "0x061017a1419eed9689c0dcb7b9d242cb489a4961f3ae884e1d92bfad0288958d"
 
 [writers]
-"octa_flip" = ["octa_flip-actions"]
+"octa_flip" = ["octa_flip-GameActions"]
