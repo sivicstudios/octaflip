@@ -1,4 +1,4 @@
-pub mod ActionEvents {
+pub mod GameEvents {
     use starknet::ContractAddress;
 
     /// Event emitted when a new game is created.
@@ -14,22 +14,6 @@ pub mod ActionEvents {
         pub board_height: u8,
         /// The initial number of players in the game (always 0).
         pub number_of_players: u8,
-    }
-
-    /// Event emitted when a player joins a competitive game.
-    #[derive(Copy, Drop, Serde)]
-    #[dojo::event]
-    pub struct PlayerJoined {
-        /// The unique identifier of the competitive game the player joined.
-        #[key]
-        pub game_id: u64,
-        /// The contract address of the player who joined.
-        #[key]
-        pub player_address: ContractAddress,
-        /// The color assigned to the player in the competitive game.
-        pub color: felt252,
-        /// The block timestamp when the player joined.
-        pub timestamp: u64,
     }
 
     /// Event emitted when a game starts.
@@ -79,6 +63,9 @@ pub mod ActionEvents {
         /// The y-coordinate of the claimed tile.
         #[key]
         pub y: u8,
+        // Color that claimed this tile
+        #[key]
+        pub color: felt252,
         /// The block timestamp when the tile was claimed.
         pub timestamp: u64,
     }

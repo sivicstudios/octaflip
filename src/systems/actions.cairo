@@ -1,36 +1,38 @@
-use octa_flip::models::{
-    CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame, PlayerInGame,
-    TileCompetitive,
-};
-use octa_flip::interfaces::actions::IActions;
-
 // dojo decorator
 #[dojo::contract]
-pub mod actions {
-    use super::{
-        IActions, CompetitiveGame, GameCounter, PlayerAtPosition, PlayerInCompetitiveGame,
-        PlayerInGame, TileCompetitive,
-    };
-    use octa_flip::errors::actions::ActionErrors::{
-        INVALID_GAME_SESSION, GAME_DOES_NOT_EXIST, GAME_NOT_IN_SESSION, ALREADY_JOINED,
-        ATLEAST_TWO_PLAYERS, INVALID_CALLER, GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING,
-        X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS, PLAYER_NOT_IN_GAME,
-    };
-    use octa_flip::events::actions::ActionEvents::{
-        GameCreated, PlayerJoined, GameStarted, GameEnded, TileClaim,
-    };
-    use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
+pub mod GameActions {
     use core::dict::Felt252Dict;
     use core::num::traits::Bounded;
-    use octa_flip::utils::{zero_address, colors};
-    use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
-
-    use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
+    use dojo::model::ModelStorage;
+    use octa_flip::constants::{ENDED, GRID_SIZE, ONGOING, WAITING};
+    use octa_flip::errors::game::GameErrors::{
+        ALREADY_JOINED, ATLEAST_TWO_PLAYERS, GAME_DOES_NOT_EXIST, GAME_HAS_ENDED,
+        GAME_HAS_NOT_STARTED, GAME_IS_NOT_ONGOING, GAME_NOT_IN_SESSION, INVALID_CALLER,
+        INVALID_GAME_SESSION, PLAYER_NOT_IN_GAME, X_IS_OUT_OF_BOUNDS, Y_IS_OUT_OF_BOUNDS,
+    };
+    use octa_flip::errors::player::PlayerErrors::{
+        PLAYER_NOT_REGISTERED, USERNAME_ALREADY_CREATED, USERNAME_ALREADY_TAKEN,
+        USERNAME_CANNOT_BE_ZERO,
+    };
+    use octa_flip::events::game::GameEvents::{GameCreated, GameEnded, GameStarted, TileClaim};
+    use octa_flip::events::player::PlayerEvents::{PlayerBirthed, PlayerJoined};
+    use octa_flip::interfaces::actions::IAction;
+    use octa_flip::models::game::{Game, GameCounter, GameTag, PlayerAtPosition, PlayerInGame, Tile};
+    use octa_flip::models::player::{AddressToUsername, Player, PlayerTrait, UsernameToAddress};
+    use octa_flip::utils::{colors, zero_address};
+    use starknet::{
+        ContractAddress, contract_address_const, get_block_timestamp, get_caller_address,
+    };
 
     #[abi(embed_v0)]
-    impl ActionsImpl of IActions<ContractState> {
+    impl ActionsImpl of IAction<ContractState> {
         fn create_game(ref self: ContractState, grid_size: u8, duration: u64) -> u64 {
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
+
             let mut world = self.world_default();
             let game_id = self.game_uid();
 
@@ -41,20 +43,26 @@ pub mod actions {
                 false => grid_size,
             };
 
-            let new_game: CompetitiveGame = CompetitiveGame {
+            let new_game: Game = Game {
                 id: game_id,
                 board_width: grid_size,
                 board_height: grid_size,
                 number_of_players: 0,
+                number_of_tiles_claimed: 0,
                 status: WAITING,
                 is_live: false,
                 starts_at: 0,
                 ends_at: 0,
                 pilot: get_caller_address(),
                 duration,
+                winner: 0,
             };
 
+            let mut player: Player = world.read_model(caller_username);
+            player.number_of_games_created += 1;
+
             world.write_model(@new_game);
+            world.write_model(@player);
 
             world
                 .emit_event(
@@ -72,12 +80,17 @@ pub mod actions {
             let mut world = self.world_default();
             let player_address = get_caller_address();
 
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            // Get the account address of the caller
+            let caller_username: felt252 = self.get_username_from_address(player_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
+
+            let mut game: Game = world.read_model(game_id);
+            let mut player: Player = world.read_model(caller_username);
             assert(game.board_width != 0, GAME_DOES_NOT_EXIST);
             assert(game.status == WAITING, GAME_NOT_IN_SESSION);
 
-            let player: PlayerInCompetitiveGame = world.read_model((game_id, player_address));
-            assert(!player.joined, ALREADY_JOINED);
+            let already_joined_player: PlayerInGame = world.read_model((game_id, player_address));
+            assert(!already_joined_player.joined, ALREADY_JOINED);
 
             let colors = colors();
             let colorindex: u32 = (game.number_of_players % colors.len().into())
@@ -85,11 +98,19 @@ pub mod actions {
                 .unwrap();
             let color = *colors.at(colorindex);
 
-            let player = PlayerInCompetitiveGame { game_id, player_address, color, joined: true };
-            world.write_model(@player);
+            let newly_joined_player = PlayerInGame { game_id, player_address, color, joined: true };
+            world.write_model(@newly_joined_player);
 
             game.number_of_players += 1;
             world.write_model(@game);
+
+            player.number_of_games_played += 1;
+            world.write_model(@player);
+
+            let game_tag: GameTag = GameTag {
+                game_id, player_id: game.number_of_players, color, player_address,
+            };
+            world.write_model(@game_tag);
 
             world
                 .emit_event(
@@ -101,12 +122,17 @@ pub mod actions {
 
         fn start_game(ref self: ContractState, game_id: u64) {
             let mut world = self.world_default();
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            let mut game: Game = world.read_model(game_id);
+
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
 
             let game_status = game.status;
             assert(game.number_of_players > 1, ATLEAST_TWO_PLAYERS);
             assert(game_status == WAITING, GAME_NOT_IN_SESSION);
-            assert(game.pilot == get_caller_address(), INVALID_CALLER);
+            assert(game.pilot == caller_address, INVALID_CALLER);
 
             let starts_at = get_block_timestamp();
             let ends_at = starts_at + game.duration;
@@ -129,19 +155,27 @@ pub mod actions {
 
         fn claim_tile(ref self: ContractState, game_id: u64, x: u8, y: u8) {
             let mut world = self.world_default();
-            let mut game: CompetitiveGame = world.read_model(game_id);
+            let mut game: Game = world.read_model(game_id);
+
+            // Get the account address of the caller
+            let caller_address = get_caller_address();
+            let caller_username: felt252 = self.get_username_from_address(caller_address);
+            assert(caller_username != 0, PLAYER_NOT_REGISTERED);
 
             let starts_at = game.starts_at;
             let ends_at = game.ends_at;
             let current_time = get_block_timestamp();
             assert(current_time >= starts_at, GAME_HAS_NOT_STARTED);
+            assert(game.status != ENDED, GAME_HAS_ENDED);
 
+            // Game time has elapsed
             if current_time >= ends_at {
                 let winner: felt252 = self.game_winner(game_id);
                 game.is_live = false;
                 game.status = ENDED;
-                //game.winner = winner;
+                game.winner = winner;
                 world.write_model(@game);
+                self.update_player_win_count(game_id, winner);
                 world
                     .emit_event(
                         @GameEnded {
@@ -155,22 +189,36 @@ pub mod actions {
             assert(x < game.board_width, X_IS_OUT_OF_BOUNDS);
             assert(y < game.board_height, Y_IS_OUT_OF_BOUNDS);
 
-            let player = get_caller_address();
-            let in_game: PlayerInCompetitiveGame = world.read_model((game_id, player));
+            let in_game: PlayerInGame = world.read_model((game_id, caller_address));
             assert(in_game.joined, PLAYER_NOT_IN_GAME);
 
-            let player_at_position = PlayerAtPosition { game_id, x, y, player };
-            let tile = TileCompetitive { x, y, game_id, claimed: player, color: in_game.color };
+            let player_at_position = PlayerAtPosition { game_id, x, y, player: caller_address };
+            let tile = Tile { x, y, game_id, claimed: caller_address, color: in_game.color };
+
+            let mut player: Player = world.read_model(caller_username);
+            player.number_of_tiles_claimed += 1;
+            game.number_of_tiles_claimed += 1;
 
             world.write_model(@player_at_position);
             world.write_model(@tile);
+            world.write_model(@player);
+            world.write_model(@game);
             world
-                .emit_event(@TileClaim { game_id, x, y, player, timestamp: get_block_timestamp() });
+                .emit_event(
+                    @TileClaim {
+                        game_id,
+                        x,
+                        y,
+                        player: caller_address,
+                        color: in_game.color,
+                        timestamp: get_block_timestamp(),
+                    },
+                );
         }
 
         fn game_winner(self: @ContractState, game_id: u64) -> felt252 {
             let world = self.world_default();
-            let game: CompetitiveGame = world.read_model(game_id);
+            let game: Game = world.read_model(game_id);
 
             let colors = colors();
             let mut colors_count: Felt252Dict<u64> = Default::default();
@@ -182,9 +230,9 @@ pub mod actions {
             let board_width = game.board_width;
             for i in 0..(board_height * board_width) {
                 let x = i % board_width;
-                let y = i % board_height;
+                let y = i / board_height;
 
-                let tile: TileCompetitive = world.read_model((x, y, game_id));
+                let tile: Tile = world.read_model((x, y, game_id));
                 let color_count = colors_count.get(tile.color);
                 colors_count.insert(tile.color, color_count + 1)
             };
@@ -208,6 +256,68 @@ pub mod actions {
             };
 
             winner
+        }
+
+        fn get_game_data(self: @ContractState, game_id: u64) -> Game {
+            let world = self.world_default();
+            let game: Game = world.read_model(game_id);
+            game
+        }
+
+
+        /// /// ///
+
+        /// /// ///
+
+        fn create_new_player(ref self: ContractState, username: felt252) {
+            let mut world = self.world_default();
+
+            let caller: ContractAddress = get_caller_address();
+
+            let zero_address: ContractAddress = contract_address_const::<0x0>();
+
+            // Validate username
+            assert(username != 0, USERNAME_CANNOT_BE_ZERO);
+
+            let existing_player: Player = world.read_model(username);
+
+            // Ensure player username is unique
+            assert(existing_player.owner == zero_address, USERNAME_ALREADY_TAKEN);
+
+            // Ensure player cannot update username by calling this function
+            let existing_username = self.get_username_from_address(caller);
+
+            assert(existing_username == 0, USERNAME_ALREADY_CREATED);
+
+            let new_player: Player = PlayerTrait::new(username, caller);
+            let username_to_address: UsernameToAddress = UsernameToAddress {
+                username, address: caller,
+            };
+            let address_to_username: AddressToUsername = AddressToUsername {
+                address: caller, username,
+            };
+
+            world.write_model(@new_player);
+            world.write_model(@username_to_address);
+            world.write_model(@address_to_username);
+
+            world.emit_event(@PlayerBirthed { username, timestamp: get_block_timestamp() });
+        }
+
+        fn get_username_from_address(self: @ContractState, address: ContractAddress) -> felt252 {
+            let mut world = self.world_default();
+
+            let address_map: AddressToUsername = world.read_model(address);
+
+            address_map.username
+        }
+
+        fn get_address_from_username(self: @ContractState, username: felt252) -> ContractAddress {
+            let mut world = self.world_default();
+
+            let username_map: UsernameToAddress = world.read_model(username);
+
+            username_map.address
         }
     }
 
@@ -243,7 +353,7 @@ pub mod actions {
         /// A unique `u64` representing the new game ID.
         fn game_uid(ref self: ContractState) -> u64 {
             let mut world = self.world_default();
-            let mut game_counter: GameCounter = world.read_model('v0');
+            let mut game_counter: GameCounter = world.read_model('v2');
             let game_id = game_counter.current_val + 1;
             game_counter.current_val = game_id;
             world.write_model(@game_counter);
@@ -271,6 +381,22 @@ pub mod actions {
             assert(player_two.player_address != zero_address(), PLAYER_NOT_IN_GAME);
 
             (player_one.player_address, player_two.player_address)
+        }
+
+        fn update_player_win_count(ref self: ContractState, game_id: u64, winning_team: felt252) {
+            let mut world = self.world_default();
+            let game: Game = world.read_model(game_id);
+
+            for player_id in 1..game.number_of_players + 1 {
+                let tag: GameTag = world.read_model((game_id, player_id));
+                let caller_username: felt252 = self.get_username_from_address(tag.player_address);
+                let mut player: Player = world.read_model(caller_username);
+
+                if tag.color == winning_team {
+                    player.number_of_games_won += 1;
+                    world.write_model(@player);
+                }
+            }
         }
     }
 }
